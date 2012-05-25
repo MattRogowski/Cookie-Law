@@ -22,7 +22,8 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-
+$plugins->add_hook('global_start', 'cookielaw_global');
+$plugins->add_hook('misc_start', 'cookielaw_misc');
 
 function cookielaw_info()
 {
@@ -61,5 +62,85 @@ function cookielaw_activate()
 function cookielaw_deactivate()
 {
 	
+}
+
+function cookielaw_global()
+{
+	global $lang;
+	
+	$lang->load('cookielaw');
+}
+
+function cookielaw_misc()
+{
+	global $mybb, $lang, $templates, $theme, $cookielaw_info, $header, $headerinclude, $footer;
+	
+	$lang->load('cookielaw');
+	
+	if($mybb->input['action'] == 'cookielaw_change')
+	{
+		if(isset($mybb->input['more_info']))
+		{
+			// hack to show no redirect
+			$mybb->settings['redirects'] = 0;
+			redirect('misc.php?action=cookielaw_info');
+		}
+	}
+	elseif($mybb->input['action'] == 'cookielaw_info')
+	{
+		$cookies_logged_in = $cookies_guest = '';
+		$logged_in_cookies = array(
+			'sid',
+			'mybbuser',
+			'mybb[announcements]',
+			'forumpass',
+			'collapsed',
+			'multiquote',
+			'pollvotes',
+			'mybb[allow_cookies]'
+		);
+		$guest_cookies = array(
+			'sid',
+			'mybb[lastvisit]',
+			'mybb[lastactive]',
+			'mybb[threadread]',
+			'mybb[forumread]',
+			'mybb[readallforums]',
+			'mybb[announcements]',
+			'forumpass',
+			'mybblang',
+			'mybb[referrer]',
+			'collapsed',
+			'coppauser',
+			'coppadob',
+			'loginattempts',
+			'fcollapse',
+			'multiquote',
+			'pollvotes',
+			'mybbratethread',
+			'mybb[allow_cookies]'
+		);
+		foreach($logged_in_cookies as $cookie)
+		{
+			$trow = alt_trow();
+			$cookie_description = 'cookielaw_cookie_'.$cookie.'_desc';
+			$cookies_logged_in .= '<tr>
+				<td class="'.$trow.'">'.$cookie.'</td>
+				<td class="'.$trow.'">'.$lang->$cookie_description.'</td>
+			</tr>';
+		}
+		foreach($guest_cookies as $cookie)
+		{
+			$trow = alt_trow();
+			$cookie_description = 'cookielaw_cookie_'.$cookie.'_desc';
+			$cookies_guest .= '<tr>
+				<td class="'.$trow.'">'.$cookie.'</td>
+				<td class="'.$trow.'">'.$lang->$cookie_description.'</td>
+			</tr>';
+		}
+		
+		eval("\$cookielaw_info = \"".$templates->get("cookielaw_info")."\";");
+		output_page($cookielaw_info);
+	}
 }
 ?>

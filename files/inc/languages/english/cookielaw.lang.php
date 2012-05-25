@@ -17,5 +17,37 @@
  * limitations under the License.
 **/
 
-
+$l['cookielaw_header'] = 'This forum uses cookies';
+$l['cookielaw_description'] = 'This forum makes use of cookies to store your login information if you are registered, and your last visit if you are not. Cookies are small text documents stored on your computer; the cookies set by this forum can only be used on this website and pose no security risk. Cookies on this forum also track the specific topics you have read and when you last read them. Please confirm whether you accept or reject these cookies being set.';
+$l['cookielaw_description_setcookie'] = 'A cookie will be stored in your browser regardless of choice to prevent you being asked this question again. You will be able to change your cookie settings at any time using the link in the footer.';
+$l['cookielaw_allow'] = 'Allow Cookies';
+$l['cookielaw_disallow'] = 'Disallow Cookies';
+$l['cookielaw_disallow_confirm'] = "Are you sure you want to disallow cookies?'+'\\r\\n\\r\\n'+'It will mean you will be unable to log in to the forum, and will restrict functionality when browsing as a guest.";
+$l['cookielaw_more_info'] = 'More Information';
+$l['cookielaw_info_title'] = 'Cookie Consent';
+$l['cookielaw_info_cookie_name'] = 'Cookie Name';
+$l['cookielaw_info_cookie_description'] = 'Cookie Description';
+$l['cookielaw_info_cookies_set_logged_in'] = 'Cookies set when logged in';
+$l['cookielaw_info_cookies_set_guest'] = 'Cookies set when browsing as a guest';
+$l['cookielaw_info_cookies_set_other'] = 'Other cookies set';
+$l['cookielaw_cookie_sid_desc'] = 'The ID of your session.';
+$l['cookielaw_cookie_mybbuser_desc'] = 'Your user ID and login key, used to keep you logged in.';
+$l['cookielaw_cookie_forumpass_desc'] = 'The passwords of password protected forums.';
+$l['cookielaw_cookie_collapsed_desc'] = 'Which forum categories you have collapsed on the forum home page.';
+$l['cookielaw_cookie_multiquote_desc'] = 'Which posts you have chosen to multiquote.';
+$l['cookielaw_cookie_mybblang_desc'] = 'Which language you have chosen from the language selector.';
+$l['cookielaw_cookie_coppauser_desc'] = 'Whether you are a COPPA user when registering.';
+$l['cookielaw_cookie_coppadob_desc'] = 'Your date of birth if you are a COPPA user.';
+$l['cookielaw_cookie_loginattempts_desc'] = 'How many times you have unsuccessfully tried to login.';
+$l['cookielaw_cookie_mybbratethread_desc'] = 'Which threads you have rated to prevent rating the same thread twice.';
+$l['cookielaw_cookie_mybb[lastvisit]_desc'] = 'When you last visited the forum.';
+$l['cookielaw_cookie_mybb[lastactive]_desc'] = 'When you were last active on the forum.';
+$l['cookielaw_cookie_mybb[threadread]_desc'] = 'The threads you have read.';
+$l['cookielaw_cookie_mybb[forumread]_desc'] = 'The forums you have marked as read.';
+$l['cookielaw_cookie_mybb[readallforums]_desc'] = 'Whether all forums were marked as read.';
+$l['cookielaw_cookie_mybb[announcements]_desc'] = 'Which announcements you have read.';
+$l['cookielaw_cookie_mybb[referrer]_desc'] = 'The ID of the user who referred you to the forum, used if you register.';
+$l['cookielaw_cookie_fcollapse_desc'] = 'Which help documents you have collapsed.';
+$l['cookielaw_cookie_pollvotes_desc'] = 'Tracks poll votes.';
+$l['cookielaw_cookie_mybb[allow_cookies]_desc'] = 'Remembers whether you allowed cookies to be used. <strong>Note: this cookie set regardless of your choice, to prevent you being asked again on every visit.</strong>';
 ?>
