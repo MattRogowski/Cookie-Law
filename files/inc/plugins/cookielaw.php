@@ -37,7 +37,7 @@ function cookielaw_info()
 		"authorsite" => "http://mattrogowski.co.uk/mybb/",
 		"version" => "0.1",
 		"compatibility" => "16*",
-		"guid" => ""
+		"guid" => "8feb3d39042f9ff5b76561fbb42019b2"
 	);
 }
 
