@@ -25,6 +25,7 @@ if(!defined("IN_MYBB"))
 $plugins->add_hook('global_start', 'cookielaw_global_start');
 $plugins->add_hook('global_end', 'cookielaw_global_end');
 $plugins->add_hook('misc_start', 'cookielaw_misc');
+$plugins->add_hook('admin_load', 'cookielaw_clear_cookies');
 
 function cookielaw_info()
 {
@@ -58,6 +59,16 @@ function cookielaw_activate()
 <head>
 <title>{\$lang->cookielaw_info_title}</title>
 {\$headerinclude}
+<script type=\"text/javascript\">
+document.observe(\"dom:loaded\", function() {
+	\$('cookielaw_disallow_bottom').observe('click', function(Event) {
+		if(!confirm('{\$lang->cookielaw_disallow_confirm}'))
+		{
+			Event.stop();
+		}
+	});
+});
+</script>
 </head>
 <body>
 {\$header}
@@ -90,19 +101,12 @@ function cookielaw_activate()
 		"template" => "<script type=\"text/javascript\">
 document.observe(\"dom:loaded\", function() {
 	\$('cookielaw_disallow_top').observe('click', function(Event) {
-		cookielaw_disallow_confirm(Event);
-	});
-	\$('cookielaw_disallow_bottom').observe('click', function(Event) {
-		cookielaw_disallow_confirm(Event);
+		if(!confirm('{\$lang->cookielaw_disallow_confirm}'))
+		{
+			Event.stop();
+		}
 	});
 });
-function cookielaw_disallow_confirm(Event)
-{
-	if(!confirm('{\$lang->cookielaw_disallow_confirm}'))
-	{
-		Event.stop();
-	}
-}
 </script>
 <div id=\"cookies\" style=\"width: 100%; text-align: left; margin-bottom: 10px;\">
 	<form action=\"{\$mybb->settings['bburl']}/misc.php?action=cookielaw_change\" method=\"post\">
@@ -197,6 +201,7 @@ function cookielaw_misc()
 			if(isset($mybb->input['disallow']))
 			{
 				my_setcookie('mybb[allow_cookies]', '0');
+				cookielaw_clear_cookies();
 			}
 			else
 			{
@@ -211,31 +216,55 @@ function cookielaw_misc()
 		$cookies = cookielaw_get_cookies();
 		foreach($cookies as $cookie_name => $info)
 		{
-			$cookie_member = $cookie_guest = '';
-			if($info['member'])
+			if(isset($info['mod']) || isset($info['admin']))
 			{
-				$cookie_member = '<img src="'.$mybb->settings['bburl'].'/images/valid.gif" alt="" title="" />';
+				$cookie_user_type = '';
+				if($info['mod'])
+				{
+					$cookie_user_type = $lang->cookielaw_info_cookies_set_mod;
+				}
+				elseif($info['admin'])
+				{
+					$cookie_user_type = $lang->cookielaw_info_cookies_set_admin;
+				}
+				
+				$trow = alt_trow();
+				$cookie_description = 'cookielaw_cookie_'.$cookie_name.'_desc';
+				$cookies_rows .= '<tr>
+					<td class="'.$trow.'">'.$cookie_name.'</td>
+					<td class="'.$trow.'">'.$lang->$cookie_description.'</td>
+					<td class="'.$trow.'" align="center">'.$cookie_user_type.'</td>
+					<td class="'.$trow.'" align="center">-</td>
+				</tr>';
 			}
 			else
 			{
-				$cookie_member = '<img src="'.$mybb->settings['bburl'].'/images/invalid.gif" alt="" title="" />';
+				$cookie_member = $cookie_guest = '';
+				if($info['member'])
+				{
+					$cookie_member = '<img src="'.$mybb->settings['bburl'].'/images/valid.gif" alt="" title="" />';
+				}
+				else
+				{
+					$cookie_member = '<img src="'.$mybb->settings['bburl'].'/images/invalid.gif" alt="" title="" />';
+				}
+				if($info['guest'])
+				{
+					$cookie_guest = '<img src="'.$mybb->settings['bburl'].'/images/valid.gif" alt="" title="" />';
+				}
+				else
+				{
+					$cookie_guest = '<img src="'.$mybb->settings['bburl'].'/images/invalid.gif" alt="" title="" />';
+				}
+				$trow = alt_trow();
+				$cookie_description = 'cookielaw_cookie_'.$cookie_name.'_desc';
+				$cookies_rows .= '<tr>
+					<td class="'.$trow.'">'.$cookie_name.'</td>
+					<td class="'.$trow.'">'.$lang->$cookie_description.'</td>
+					<td class="'.$trow.'" align="center">'.$cookie_member.'</td>
+					<td class="'.$trow.'" align="center">'.$cookie_guest.'</td>
+				</tr>';
 			}
-			if($info['guest'])
-			{
-				$cookie_guest = '<img src="'.$mybb->settings['bburl'].'/images/valid.gif" alt="" title="" />';
-			}
-			else
-			{
-				$cookie_guest = '<img src="'.$mybb->settings['bburl'].'/images/invalid.gif" alt="" title="" />';
-			}
-			$trow = alt_trow();
-			$cookie_description = 'cookielaw_cookie_'.$cookie_name.'_desc';
-			$cookies_rows .= '<tr>
-				<td class="'.$trow.'">'.$cookie_name.'</td>
-				<td class="'.$trow.'">'.$lang->$cookie_description.'</td>
-				<td class="'.$trow.'" align="center">'.$cookie_member.'</td>
-				<td class="'.$trow.'" align="center">'.$cookie_guest.'</td>
-			</tr>';
 		}
 		
 		eval("\$cookielaw_info = \"".$templates->get("cookielaw_info")."\";");
@@ -249,7 +278,7 @@ function cookielaw_clear_cookies()
 	
 	if(isset($mybb->cookies['mybb']['allow_cookies']) && $mybb->cookies['mybb']['allow_cookies'] == '0')
 	{
-		$cookies = cookielaw_get_cookies();
+		$cookies = cookielaw_get_cookies(true);
 		foreach($cookies as $cookie_name => $info)
 		{
 			if($cookie_name == 'mybb[allow_cookies]')
@@ -258,14 +287,23 @@ function cookielaw_clear_cookies()
 			}
 			my_unsetcookie($cookie_name);
 		}
+		foreach($mybb->cookies as $key => $val)
+		{
+			if(strpos($key, 'inlinemod_') !== false)
+			{
+				my_unsetcookie($key);
+			}
+		}
 		unset($mybb->user);
 		unset($mybb->session);
 	}
 }
 
-function cookielaw_get_cookies()
+function cookielaw_get_cookies($all = false)
 {
-	return array(
+	global $mybb;
+	
+	$cookies = array(
 		'sid' => array(
 			'member' => true,
 			'guest' => true
@@ -347,5 +385,24 @@ function cookielaw_get_cookies()
 			'guest' => true
 		)
 	);
+	
+	if($all || is_moderator())
+	{
+		$cookies['inlinemod_*'] = array(
+			'mod' => true
+		);
+	}
+	
+	if($all || $mybb->usergroup['cancp'] == 1)
+	{
+		$cookies['adminsid'] = array(
+			'admin' => true
+		);
+		$cookies['acploginattempts'] = array(
+			'admin' => true
+		);
+	}
+	
+	return $cookies;
 }
 ?>
