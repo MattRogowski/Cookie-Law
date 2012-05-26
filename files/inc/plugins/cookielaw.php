@@ -22,7 +22,8 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-$plugins->add_hook('global_start', 'cookielaw_global');
+$plugins->add_hook('global_start', 'cookielaw_global_start');
+$plugins->add_hook('global_end', 'cookielaw_global_end');
 $plugins->add_hook('misc_start', 'cookielaw_misc');
 
 function cookielaw_info()
@@ -39,36 +40,142 @@ function cookielaw_info()
 	);
 }
 
-function cookielaw_install()
-{
-	
-}
-
-function cookielaw_is_installed()
-{
-	
-}
-
-function cookielaw_uninstall()
-{
-	
-}
-
 function cookielaw_activate()
 {
+	global $db;
 	
+	cookielaw_deactivate();
+	
+	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
+	
+	find_replace_templatesets("header", "#".preg_quote('<div id="container">')."#i", '{$cookielaw}<div id="container">');
+	find_replace_templatesets("footer", "#".preg_quote('{$lang->bottomlinks_syndication}</a>')."#i", '{$lang->bottomlinks_syndication}</a> | <a href="{$mybb->settings[\'bburl\']}/misc.php?action=cookielaw_info">{$lang->cookielaw_footer}</a>');
+	
+	$templates = array();
+	$templates[] = array(
+		"title" => "cookielaw_info",
+		"template" => "<html>
+<head>
+<title>{\$lang->cookielaw_info_title}</title>
+{\$headerinclude}
+</head>
+<body>
+{\$header}
+<form action=\"{\$mybb->settings['bburl']}/misc.php?action=cookielaw_change\" method=\"post\">
+	<table border=\"0\" cellspacing=\"{\$theme['borderwidth']}\" cellpadding=\"{\$theme['tablespace']}\" class=\"tborder\">
+		<tr>		
+			<td class=\"thead\" colspan=\"4\"><strong>{\$lang->cookielaw_header}</strong></td>
+		</tr>
+		<tr>		
+			<td class=\"trow1\" colspan=\"4\">{\$lang->cookielaw_description}</td>
+		</tr>
+		<tr>		
+			<td class=\"tcat\"><strong>{\$lang->cookielaw_info_cookie_name}</strong></td>
+			<td class=\"tcat\"><strong>{\$lang->cookielaw_info_cookie_description}</strong></td>
+			<td class=\"tcat\" align=\"center\"><strong>{\$lang->cookielaw_info_cookies_set_logged_in}</strong></td>
+			<td class=\"tcat\" align=\"center\"><strong>{\$lang->cookielaw_info_cookies_set_guest}</strong></td>
+		</tr>
+		{\$cookies_rows}
+		<tr>		
+			<td class=\"tfoot\" colspan=\"4\"><div style=\"text-align: center;\"><input type=\"submit\" name=\"allow\" value=\"{\$lang->cookielaw_allow}\" /><input type=\"submit\" name=\"disallow\" id=\"cookielaw_disallow_bottom\" value=\"{\$lang->cookielaw_disallow}\" /><input type=\"hidden\" name=\"my_post_key\" value=\"{\$mybb->post_code}\" /></div></td>
+		</tr>
+	</table>
+</form>
+{\$footer}
+</body>
+</html>"
+	);
+	$templates[] = array(
+		"title" => "cookielaw_header",
+		"template" => "<script type=\"text/javascript\">
+document.observe(\"dom:loaded\", function() {
+	\$('cookielaw_disallow_top').observe('click', function(Event) {
+		cookielaw_disallow_confirm(Event);
+	});
+	\$('cookielaw_disallow_bottom').observe('click', function(Event) {
+		cookielaw_disallow_confirm(Event);
+	});
+});
+function cookielaw_disallow_confirm(Event)
+{
+	if(!confirm('{\$lang->cookielaw_disallow_confirm}'))
+	{
+		Event.stop();
+	}
+}
+</script>
+<div id=\"cookies\" style=\"width: 100%; text-align: left; margin-bottom: 10px;\">
+	<form action=\"{\$mybb->settings['bburl']}/misc.php?action=cookielaw_change\" method=\"post\">
+		<table border=\"0\" cellspacing=\"1\" cellpadding=\"4\" class=\"tborder\">
+			<tr>		
+				<td class=\"thead\"><strong>{\$lang->cookielaw_header}</strong></td>
+			</tr>
+			<tr>		
+				<td class=\"trow1\">{\$lang->cookielaw_description}<br /><br />{\$lang->cookielaw_description_setcookie}</td>
+			</tr>
+			<tr>		
+				<td class=\"tfoot\"><div class=\"float_right\"><input type=\"submit\" name=\"allow\" value=\"{\$lang->cookielaw_allow}\" /><input type=\"submit\" name=\"disallow\" id=\"cookielaw_disallow_top\" value=\"{\$lang->cookielaw_disallow}\" /><input type=\"submit\" name=\"more_info\" value=\"{\$lang->cookielaw_more_info}\" /><input type=\"hidden\" name=\"my_post_key\" value=\"{\$mybb->post_code}\" /></div></td>
+			</tr>
+		</table>
+	</form>
+</div>"
+	);
+	$templates[] = array(
+		"title" => "cookielaw_header_no_cookies",
+		"template" => "<div id=\"cookies\" style=\"display: inline-block; text-align: left; margin-bottom: 10px; padding: 4px; font-size: 10px; border: 1px solid #000000;\">
+	{\$lang->cookielaw_description_no_cookies}
+</div>"
+	);
+	
+	foreach($templates as $template)
+	{
+		$insert = array(
+			"title" => $db->escape_string($template['title']),
+			"template" => $db->escape_string($template['template']),
+			"sid" => "-1",
+			"version" => "1600",
+			"status" => "",
+			"dateline" => TIME_NOW
+		);
+		
+		$db->insert_query("templates", $insert);
+	}
 }
 
 function cookielaw_deactivate()
 {
+	global $db;
 	
+	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
+	
+	find_replace_templatesets("header", "#".preg_quote('{$cookielaw}')."#i", '', 0);
+	find_replace_templatesets("footer", "#".preg_quote(' | <a href="{$mybb->settings[\'bburl\']}/misc.php?action=cookielaw_info">{$lang->cookielaw_footer}</a>')."#i", '', 0);
+	
+	$db->delete_query("templates", "title IN ('cookielaw_info','cookielaw_header','cookielaw_header_no_cookies')");
 }
 
-function cookielaw_global()
+function cookielaw_global_start()
 {
-	global $lang;
+	global $mybb, $lang, $templates, $cookielaw;
 	
 	$lang->load('cookielaw');
+	
+	if(!isset($mybb->cookies['mybb']['allow_cookies']))
+	{
+		eval("\$cookielaw = \"".$templates->get("cookielaw_header")."\";");
+	}
+	elseif(isset($mybb->cookies['mybb']['allow_cookies']) && $mybb->cookies['mybb']['allow_cookies'] == '0')
+	{
+		$lang->cookielaw_description_no_cookies = $lang->sprintf($lang->cookielaw_description_no_cookies, $mybb->settings['bburl']);
+		eval("\$cookielaw = \"".$templates->get("cookielaw_header_no_cookies")."\";");
+	}
+	
+	cookielaw_clear_cookies();
+}
+
+function cookielaw_global_end()
+{
+	 cookielaw_clear_cookies();
 }
 
 function cookielaw_misc()
@@ -85,62 +192,161 @@ function cookielaw_misc()
 			$mybb->settings['redirects'] = 0;
 			redirect('misc.php?action=cookielaw_info');
 		}
+		else
+		{
+			if(isset($mybb->input['disallow']))
+			{
+				my_setcookie('mybb[allow_cookies]', '0');
+			}
+			else
+			{
+				my_setcookie('mybb[allow_cookies]', '1');
+			}
+			redirect('index.php', $lang->cookielaw_redirect);
+		}
 	}
 	elseif($mybb->input['action'] == 'cookielaw_info')
 	{
-		$cookies_logged_in = $cookies_guest = '';
-		$logged_in_cookies = array(
-			'sid',
-			'mybbuser',
-			'mybb[announcements]',
-			'forumpass',
-			'collapsed',
-			'multiquote',
-			'pollvotes',
-			'mybb[allow_cookies]'
-		);
-		$guest_cookies = array(
-			'sid',
-			'mybb[lastvisit]',
-			'mybb[lastactive]',
-			'mybb[threadread]',
-			'mybb[forumread]',
-			'mybb[readallforums]',
-			'mybb[announcements]',
-			'forumpass',
-			'mybblang',
-			'mybb[referrer]',
-			'collapsed',
-			'coppauser',
-			'coppadob',
-			'loginattempts',
-			'fcollapse',
-			'multiquote',
-			'pollvotes',
-			'mybbratethread',
-			'mybb[allow_cookies]'
-		);
-		foreach($logged_in_cookies as $cookie)
+		$cookies_rows = '';
+		$cookies = cookielaw_get_cookies();
+		foreach($cookies as $cookie_name => $info)
 		{
+			$cookie_member = $cookie_guest = '';
+			if($info['member'])
+			{
+				$cookie_member = '<img src="'.$mybb->settings['bburl'].'/images/valid.gif" alt="" title="" />';
+			}
+			else
+			{
+				$cookie_member = '<img src="'.$mybb->settings['bburl'].'/images/invalid.gif" alt="" title="" />';
+			}
+			if($info['guest'])
+			{
+				$cookie_guest = '<img src="'.$mybb->settings['bburl'].'/images/valid.gif" alt="" title="" />';
+			}
+			else
+			{
+				$cookie_guest = '<img src="'.$mybb->settings['bburl'].'/images/invalid.gif" alt="" title="" />';
+			}
 			$trow = alt_trow();
-			$cookie_description = 'cookielaw_cookie_'.$cookie.'_desc';
-			$cookies_logged_in .= '<tr>
-				<td class="'.$trow.'">'.$cookie.'</td>
+			$cookie_description = 'cookielaw_cookie_'.$cookie_name.'_desc';
+			$cookies_rows .= '<tr>
+				<td class="'.$trow.'">'.$cookie_name.'</td>
 				<td class="'.$trow.'">'.$lang->$cookie_description.'</td>
-			</tr>';
-		}
-		foreach($guest_cookies as $cookie)
-		{
-			$trow = alt_trow();
-			$cookie_description = 'cookielaw_cookie_'.$cookie.'_desc';
-			$cookies_guest .= '<tr>
-				<td class="'.$trow.'">'.$cookie.'</td>
-				<td class="'.$trow.'">'.$lang->$cookie_description.'</td>
+				<td class="'.$trow.'" align="center">'.$cookie_member.'</td>
+				<td class="'.$trow.'" align="center">'.$cookie_guest.'</td>
 			</tr>';
 		}
 		
 		eval("\$cookielaw_info = \"".$templates->get("cookielaw_info")."\";");
 		output_page($cookielaw_info);
 	}
+}
+
+function cookielaw_clear_cookies()
+{
+	global $mybb;
+	
+	if(isset($mybb->cookies['mybb']['allow_cookies']) && $mybb->cookies['mybb']['allow_cookies'] == '0')
+	{
+		$cookies = cookielaw_get_cookies();
+		foreach($cookies as $cookie_name => $info)
+		{
+			if($cookie_name == 'mybb[allow_cookies]')
+			{
+				continue;
+			}
+			my_unsetcookie($cookie_name);
+		}
+	}
+	
+	unset($mybb->user);
+	unset($mybb->session);
+}
+
+function cookielaw_get_cookies()
+{
+	return array(
+		'sid' => array(
+			'member' => true,
+			'guest' => true
+		),
+		'mybbuser' => array(
+			'member' => true,
+			'guest' => false
+		),
+		'mybb[lastvisit]' => array(
+			'member' => false,
+			'guest' => true
+		),
+		'mybb[lastactive]' => array(
+			'member' => false,
+			'guest' => true
+		),
+		'mybb[threadread]' => array(
+			'member' => false,
+			'guest' => true
+		),
+		'mybb[forumread]' => array(
+			'member' => false,
+			'guest' => true
+		),
+		'mybb[readallforums]' => array(
+			'member' => false,
+			'guest' => true
+		),
+		'mybb[announcements]' => array(
+			'member' => true,
+			'guest' => true
+		),
+		'mybb[referrer]' => array(
+			'member' => false,
+			'guest' => true
+		),
+		'forumpass' => array(
+			'member' => true,
+			'guest' => true
+		),
+		'mybblang' => array(
+			'member' => false,
+			'guest' => true
+		),
+		'collapsed' => array(
+			'member' => true,
+			'guest' => true
+		),
+		'coppauser' => array(
+			'member' => false,
+			'guest' => true
+		),
+		'coppadob' => array(
+			'member' => false,
+			'guest' => true
+		),
+		'loginattempts' => array(
+			'member' => false,
+			'guest' => true
+		),
+		'fcollapse' => array(
+			'member' => false,
+			'guest' => true
+		),
+		'multiquote' => array(
+			'member' => true,
+			'guest' => true
+		),
+		'pollvotes' => array(
+			'member' => true,
+			'guest' => true
+		),
+		'mybbratethread' => array(
+			'member' => false,
+			'guest' => true
+		),
+		'mybb[allow_cookies]' => array(
+			'member' => true,
+			'guest' => true
+		)
+	);
 }
 ?>

@@ -20,6 +20,7 @@
 $l['cookielaw_header'] = 'This forum uses cookies';
 $l['cookielaw_description'] = 'This forum makes use of cookies to store your login information if you are registered, and your last visit if you are not. Cookies are small text documents stored on your computer; the cookies set by this forum can only be used on this website and pose no security risk. Cookies on this forum also track the specific topics you have read and when you last read them. Please confirm whether you accept or reject these cookies being set.';
 $l['cookielaw_description_setcookie'] = 'A cookie will be stored in your browser regardless of choice to prevent you being asked this question again. You will be able to change your cookie settings at any time using the link in the footer.';
+$l['cookielaw_description_no_cookies'] = 'You have blocked the use of cookies on this site. Some site functionality will fail to work. <a href="{1}/misc.php?action=cookielaw_info">Change this/More information</a>.';
 $l['cookielaw_allow'] = 'Allow Cookies';
 $l['cookielaw_disallow'] = 'Disallow Cookies';
 $l['cookielaw_disallow_confirm'] = "Are you sure you want to disallow cookies?'+'\\r\\n\\r\\n'+'It will mean you will be unable to log in to the forum, and will restrict functionality when browsing as a guest.";
@@ -27,8 +28,8 @@ $l['cookielaw_more_info'] = 'More Information';
 $l['cookielaw_info_title'] = 'Cookie Consent';
 $l['cookielaw_info_cookie_name'] = 'Cookie Name';
 $l['cookielaw_info_cookie_description'] = 'Cookie Description';
-$l['cookielaw_info_cookies_set_logged_in'] = 'Cookies set when logged in';
-$l['cookielaw_info_cookies_set_guest'] = 'Cookies set when browsing as a guest';
+$l['cookielaw_info_cookies_set_logged_in'] = 'Set when logged in';
+$l['cookielaw_info_cookies_set_guest'] = 'Set when browsing as a guest';
 $l['cookielaw_info_cookies_set_other'] = 'Other cookies set';
 $l['cookielaw_cookie_sid_desc'] = 'The ID of your session.';
 $l['cookielaw_cookie_mybbuser_desc'] = 'Your user ID and login key, used to keep you logged in.';
@@ -50,4 +51,6 @@ $l['cookielaw_cookie_mybb[referrer]_desc'] = 'The ID of the user who referred yo
 $l['cookielaw_cookie_fcollapse_desc'] = 'Which help documents you have collapsed.';
 $l['cookielaw_cookie_pollvotes_desc'] = 'Tracks poll votes.';
 $l['cookielaw_cookie_mybb[allow_cookies]_desc'] = 'Remembers whether you allowed cookies to be used. <strong>Note: this cookie set regardless of your choice, to prevent you being asked again on every visit.</strong>';
+$l['cookielaw_redirect'] = 'You cookie preferences have been updated.<br /><br />You can change them at any time by using the link in the footer.';
+$l['cookielaw_footer'] = 'Cookie Settings';
 ?>
