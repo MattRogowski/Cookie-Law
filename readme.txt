@@ -6,7 +6,7 @@ Authorsite: http://mattrogowski.co.uk/plugins/
 Version: 0.1
 Compatibility: 1.6.x
 Files: 2
-Templates added: 2
+Templates added: 3
 Template changes: 2
 Database tables added: 0
 Database columns added: 0
@@ -22,7 +22,7 @@ Upload ./inc/languages/english/cookielaw.lang.php to ./inc/languages/english/
 Go to ACP > Plugins > Activate
 
 Change Log:
-01/01/70 - v0.1 -> Initial 'beta' release.
+26/05/12 - v0.1 -> Initial 'beta' release.
 
 Copyright 2012 Matthew Rogowski
 
