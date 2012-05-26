@@ -258,10 +258,9 @@ function cookielaw_clear_cookies()
 			}
 			my_unsetcookie($cookie_name);
 		}
+		unset($mybb->user);
+		unset($mybb->session);
 	}
-	
-	unset($mybb->user);
-	unset($mybb->session);
 }
 
 function cookielaw_get_cookies()
