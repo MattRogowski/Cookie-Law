@@ -276,7 +276,7 @@ function cookielaw_clear_cookies()
 {
 	global $mybb, $session;
 	
-	if(isset($mybb->cookies['mybb']['allow_cookies']) && $mybb->cookies['mybb']['allow_cookies'] == '0')
+	if(isset($mybb->cookies['mybb']['allow_cookies']) && $mybb->cookies['mybb']['allow_cookies'] == '0' && !defined('IN_ADMINCP'))
 	{
 		$cookies = cookielaw_get_cookies(true);
 		foreach($cookies as $cookie_name => $info)
