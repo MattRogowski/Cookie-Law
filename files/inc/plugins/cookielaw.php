@@ -200,8 +200,8 @@ function cookielaw_misc()
 		{
 			if(isset($mybb->input['disallow']))
 			{
-				my_setcookie('mybb[allow_cookies]', '0');
 				cookielaw_clear_cookies();
+				my_setcookie('mybb[allow_cookies]', '0');
 			}
 			else
 			{
@@ -274,7 +274,7 @@ function cookielaw_misc()
 
 function cookielaw_clear_cookies()
 {
-	global $mybb;
+	global $mybb, $session;
 	
 	if(isset($mybb->cookies['mybb']['allow_cookies']) && $mybb->cookies['mybb']['allow_cookies'] == '0')
 	{
@@ -296,6 +296,7 @@ function cookielaw_clear_cookies()
 		}
 		unset($mybb->user);
 		unset($mybb->session);
+		$session->load_guest();
 	}
 }
 
