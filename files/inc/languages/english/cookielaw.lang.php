@@ -1,8 +1,8 @@
 <?php
 /**
- * Cookie Law 0.1 - Language File
+ * Cookie Law 1.0 - Language File
 
- * Copyright 2012 Matthew Rogowski
+ * Copyright 2014 Matthew Rogowski
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ $l['cookielaw_description_setcookie'] = 'A cookie will be stored in your browser
 $l['cookielaw_description_no_cookies'] = 'You have blocked the use of cookies on this site. Some site functionality will fail to work. <a href="{1}/misc.php?action=cookielaw_info">Change this/More information</a>.';
 $l['cookielaw_allow'] = 'Allow Cookies';
 $l['cookielaw_disallow'] = 'Disallow Cookies';
+$l['cookielaw_ok'] = 'Okay';
 $l['cookielaw_disallow_confirm'] = "Are you sure you want to disallow cookies?'+'\\r\\n\\r\\n'+'It will mean you will be unable to log in to the forum, and will restrict functionality when browsing as a guest.";
 $l['cookielaw_more_info'] = 'More Information';
 $l['cookielaw_info_title'] = 'Cookie Consent';
@@ -39,9 +40,11 @@ $l['cookielaw_cookie_forumpass_desc'] = 'The passwords of password protected for
 $l['cookielaw_cookie_collapsed_desc'] = 'Which forum categories you have collapsed on the forum home page.';
 $l['cookielaw_cookie_multiquote_desc'] = 'Which posts you have chosen to multiquote.';
 $l['cookielaw_cookie_mybblang_desc'] = 'Which language you have chosen from the language selector.';
+$l['cookielaw_cookie_mybbtheme_desc'] = 'Which theme you have chosen from the theme selector.';
 $l['cookielaw_cookie_coppauser_desc'] = 'Whether you are a COPPA user when registering.';
 $l['cookielaw_cookie_coppadob_desc'] = 'Your date of birth if you are a COPPA user.';
 $l['cookielaw_cookie_loginattempts_desc'] = 'How many times you have unsuccessfully tried to login.';
+$l['cookielaw_cookie_failedlogin_desc'] = 'When you unsuccessfully tried to login.';
 $l['cookielaw_cookie_mybbratethread_desc'] = 'Which threads you have rated to prevent rating the same thread twice.';
 $l['cookielaw_cookie_mybb[lastvisit]_desc'] = 'When you last visited the forum.';
 $l['cookielaw_cookie_mybb[lastactive]_desc'] = 'When you were last active on the forum.';
@@ -56,6 +59,7 @@ $l['cookielaw_cookie_mybb[allow_cookies]_desc'] = 'Remembers whether you allowed
 $l['cookielaw_cookie_inlinemod_*_desc'] = 'Keeps track of which threads/posts are selected for inline moderation.';
 $l['cookielaw_cookie_adminsid_desc'] = 'Keeps you logged in to the Admin Control Panel.';
 $l['cookielaw_cookie_acploginattempts_desc'] = 'How many times you have unsuccessfully tried to login to the Admin Control Panel.';
+$l['cookielaw_cookie_acpview_desc'] = 'User view display in the Admin Control Panel.';
 $l['cookielaw_redirect'] = 'You cookie preferences have been updated.<br /><br />You can change them at any time by using the link in the footer.';
 $l['cookielaw_footer'] = 'Cookie Consent Settings';
 ?>

@@ -1,8 +1,8 @@
 <?php
 /**
- * Cookie Law 0.1
+ * Cookie Law 1.0
 
- * Copyright 2011 Matthew Rogowski
+ * Copyright 2014 Matthew Rogowski
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,8 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-$plugins->add_hook('global_start', 'cookielaw_global_start');
+$plugins->add_hook('global_start', 'cookielaw_global_intermediate');
+$plugins->add_hook('global_intermediate', 'cookielaw_global_intermediate');
 $plugins->add_hook('global_end', 'cookielaw_global_end');
 $plugins->add_hook('misc_start', 'cookielaw_misc');
 $plugins->add_hook('admin_load', 'cookielaw_clear_cookies');
@@ -32,11 +33,11 @@ function cookielaw_info()
 	return array(
 		"name" => "Cookie Law",
 		"description" => "Give information and gain consent for cookies to be set by the forum.",
-		"website" => "http://mattrogowski.co.uk/mybb/",
-		"author" => "MattRogowski",
-		"authorsite" => "http://mattrogowski.co.uk/mybb/",
-		"version" => "0.1",
-		"compatibility" => "16*",
+		"website" => "https://github.com/MattRogowski/Cookie-Law",
+		"author" => "Matt Rogowski",
+		"authorsite" => "http://mattrogowski.co.uk",
+		"version" => "1.0",
+		"compatibility" => "16*,18*",
 		"guid" => "8feb3d39042f9ff5b76561fbb42019b2"
 	);
 }
@@ -49,8 +50,46 @@ function cookielaw_activate()
 	
 	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
 	
+	$settings_group = array(
+		"name" => "cookielaw",
+		"title" => "Cookie Law Settings",
+		"description" => "Settings for the cookie law plugin.",
+		"disporder" => "28",
+		"isdefault" => 0
+	);
+	$db->insert_query("settinggroups", $settings_group);
+	$gid = $db->insert_id();
+	
+	$settings = array();
+	$settings[] = array(
+		"name" => "cookielaw_method",
+		"title" => "Display Method",
+		"description" => "How do you want the message to function?<br /><strong>Notify:</strong> A message will be displayed notifying users that cookies are used, but no method of opting out.<br /><strong>Opt In/Out:</strong> Give people a choice on whether they want to accept the use of cookies or not.",
+		"optionscode" => "radio
+notify=Notify
+opt=Opt In/Out",
+		"value" => "notify"
+	);
+	$i = 1;
+	foreach($settings as $setting)
+	{
+		$insert = array(
+			"name" => $setting['name'],
+			"title" => $setting['title'],
+			"description" => $setting['description'],
+			"optionscode" => $setting['optionscode'],
+			"value" => $setting['value'],
+			"disporder" => $i,
+			"gid" => intval($gid),
+		);
+		$db->insert_query("settings", $insert);
+		$i++;
+	}
+	
+	rebuild_settings();
+	
 	find_replace_templatesets("header", "#".preg_quote('<div id="container">')."#i", '{$cookielaw}<div id="container">');
-	find_replace_templatesets("footer", "#".preg_quote('{$lang->bottomlinks_syndication}</a>')."#i", '{$lang->bottomlinks_syndication}</a> | <a href="{$mybb->settings[\'bburl\']}/misc.php?action=cookielaw_info">{$lang->cookielaw_footer}</a>');
+	find_replace_templatesets("footer", "#".preg_quote('{$lang->bottomlinks_syndication}</a></li>')."#i", '{$lang->bottomlinks_syndication}</a></li>'."\n\t\t\t\t".'<li><a href="{$mybb->settings[\'bburl\']}/misc.php?action=cookielaw_info">{$lang->cookielaw_footer}</a></li>');
 	
 	$templates = array();
 	$templates[] = array(
@@ -60,11 +99,11 @@ function cookielaw_activate()
 <title>{\$lang->cookielaw_info_title}</title>
 {\$headerinclude}
 <script type=\"text/javascript\">
-document.observe(\"dom:loaded\", function() {
-	\$('cookielaw_disallow_bottom').observe('click', function(Event) {
+jQuery(document).ready(function() {
+	jQuery('.cookielaw_disallow').click(function() {
 		if(!confirm('{\$lang->cookielaw_disallow_confirm}'))
 		{
-			Event.stop();
+			return false;
 		}
 	});
 });
@@ -88,7 +127,7 @@ document.observe(\"dom:loaded\", function() {
 		</tr>
 		{\$cookies_rows}
 		<tr>		
-			<td class=\"tfoot\" colspan=\"4\"><div style=\"text-align: center;\"><input type=\"submit\" name=\"allow\" value=\"{\$lang->cookielaw_allow}\" /><input type=\"submit\" name=\"disallow\" id=\"cookielaw_disallow_bottom\" value=\"{\$lang->cookielaw_disallow}\" /><input type=\"hidden\" name=\"my_post_key\" value=\"{\$mybb->post_code}\" /></div></td>
+			<td class=\"tfoot\" colspan=\"4\"><div style=\"text-align: center;\">{\$buttons}</div></td>
 		</tr>
 	</table>
 </form>
@@ -99,18 +138,18 @@ document.observe(\"dom:loaded\", function() {
 	$templates[] = array(
 		"title" => "cookielaw_header",
 		"template" => "<script type=\"text/javascript\">
-document.observe(\"dom:loaded\", function() {
-	\$('cookielaw_disallow_top').observe('click', function(Event) {
+jQuery(document).ready(function() {
+	jQuery('.cookielaw_disallow').unbind('click').click(function() {
 		if(!confirm('{\$lang->cookielaw_disallow_confirm}'))
 		{
-			Event.stop();
+			return false;
 		}
 	});
 });
 </script>
 <div id=\"cookies\" style=\"width: 100%; text-align: left; margin-bottom: 10px;\">
 	<form action=\"{\$mybb->settings['bburl']}/misc.php?action=cookielaw_change\" method=\"post\">
-		<table border=\"0\" cellspacing=\"1\" cellpadding=\"4\" class=\"tborder\">
+		<table border=\"0\" cellspacing=\"{\$theme['borderwidth']}\" cellpadding=\"{\$theme['tablespace']}\" class=\"tborder\">
 			<tr>		
 				<td class=\"thead\"><strong>{\$lang->cookielaw_header}</strong></td>
 			</tr>
@@ -118,11 +157,23 @@ document.observe(\"dom:loaded\", function() {
 				<td class=\"trow1\">{\$lang->cookielaw_description}<br /><br />{\$lang->cookielaw_description_setcookie}</td>
 			</tr>
 			<tr>		
-				<td class=\"tfoot\"><div class=\"float_right\"><input type=\"submit\" name=\"allow\" value=\"{\$lang->cookielaw_allow}\" /><input type=\"submit\" name=\"disallow\" id=\"cookielaw_disallow_top\" value=\"{\$lang->cookielaw_disallow}\" /><input type=\"submit\" name=\"more_info\" value=\"{\$lang->cookielaw_more_info}\" /><input type=\"hidden\" name=\"my_post_key\" value=\"{\$mybb->post_code}\" /></div></td>
+				<td class=\"tfoot\"><div class=\"float_right\">{\$buttons}</div></td>
 			</tr>
 		</table>
 	</form>
 </div>"
+	);
+	$templates[] = array(
+		"title" => "cookielaw_buttons_notify",
+		"template" => "<input type=\"submit\" name=\"okay\" value=\"{\$lang->cookielaw_ok}\" />{\$more_info}<input type=\"hidden\" name=\"my_post_key\" value=\"{\$mybb->post_code}\" />"
+	);
+	$templates[] = array(
+		"title" => "cookielaw_buttons_opt",
+		"template" => "<input type=\"submit\" name=\"allow\" value=\"{\$lang->cookielaw_allow}\" /> <input type=\"submit\" name=\"disallow\" class=\"cookielaw_disallow\" value=\"{\$lang->cookielaw_disallow}\" />{\$more_info}<input type=\"hidden\" name=\"my_post_key\" value=\"{\$mybb->post_code}\" />"
+	);
+	$templates[] = array(
+		"title" => "cookielaw_button_more_info",
+		"template" => "<input type=\"submit\" name=\"more_info\" value=\"{\$lang->cookielaw_more_info}\" />"
 	);
 	$templates[] = array(
 		"title" => "cookielaw_header_no_cookies",
@@ -152,20 +203,32 @@ function cookielaw_deactivate()
 	
 	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
 	
-	find_replace_templatesets("header", "#".preg_quote('{$cookielaw}')."#i", '', 0);
-	find_replace_templatesets("footer", "#".preg_quote(' | <a href="{$mybb->settings[\'bburl\']}/misc.php?action=cookielaw_info">{$lang->cookielaw_footer}</a>')."#i", '', 0);
+	$db->delete_query("settinggroups", "name = 'cookielaw'");
 	
-	$db->delete_query("templates", "title IN ('cookielaw_info','cookielaw_header','cookielaw_header_no_cookies')");
+	$settings = array(
+		"cookielaw_method"
+	);
+	$settings = "'" . implode("','", $settings) . "'";
+	$db->delete_query("settings", "name IN ({$settings})");
+	
+	rebuild_settings();
+	
+	find_replace_templatesets("header", "#".preg_quote('{$cookielaw}')."#i", '', 0);
+	find_replace_templatesets("footer", "#".preg_quote("\n\t\t\t\t".'<li><a href="{$mybb->settings[\'bburl\']}/misc.php?action=cookielaw_info">{$lang->cookielaw_footer}</a></li>')."#i", '', 0);
+	
+	$db->delete_query("templates", "title IN ('cookielaw_info','cookielaw_header','cookielaw_buttons_notify','cookielaw_buttons_opt','cookielaw_button_more_info','cookielaw_header_no_cookies')");
 }
 
-function cookielaw_global_start()
+function cookielaw_global_intermediate()
 {
-	global $mybb, $lang, $templates, $cookielaw;
+	global $mybb, $lang, $templates, $theme, $cookielaw;
 	
 	$lang->load('cookielaw');
-	
+
 	if(!isset($mybb->cookies['mybb']['allow_cookies']))
 	{
+		eval("\$more_info = \"".$templates->get("cookielaw_button_more_info")."\";");
+		eval("\$buttons = \"".$templates->get("cookielaw_buttons_".$mybb->settings['cookielaw_method'])."\";");
 		eval("\$cookielaw = \"".$templates->get("cookielaw_header")."\";");
 	}
 	elseif(isset($mybb->cookies['mybb']['allow_cookies']) && $mybb->cookies['mybb']['allow_cookies'] == '0')
@@ -206,6 +269,11 @@ function cookielaw_misc()
 			else
 			{
 				my_setcookie('mybb[allow_cookies]', '1');
+
+				if($mybb->input['okay'])
+				{
+					$lang->cookielaw_redirect = '';
+				}
 			}
 			redirect('index.php', $lang->cookielaw_redirect);
 		}
@@ -267,6 +335,10 @@ function cookielaw_misc()
 			}
 		}
 		
+		if($mybb->settings['cookielaw_method'] == 'opt')
+		{
+			eval("\$buttons = \"".$templates->get("cookielaw_buttons_".$mybb->settings['cookielaw_method'])."\";");
+		}
 		eval("\$cookielaw_info = \"".$templates->get("cookielaw_info")."\";");
 		output_page($cookielaw_info);
 	}
@@ -349,6 +421,10 @@ function cookielaw_get_cookies($all = false)
 			'member' => false,
 			'guest' => true
 		),
+		'mybbtheme' => array(
+			'member' => false,
+			'guest' => true
+		),
 		'collapsed' => array(
 			'member' => true,
 			'guest' => true
@@ -362,6 +438,10 @@ function cookielaw_get_cookies($all = false)
 			'guest' => true
 		),
 		'loginattempts' => array(
+			'member' => false,
+			'guest' => true
+		),
+		'failedlogin' => array(
 			'member' => false,
 			'guest' => true
 		),
@@ -400,6 +480,9 @@ function cookielaw_get_cookies($all = false)
 			'admin' => true
 		);
 		$cookies['acploginattempts'] = array(
+			'admin' => true
+		);
+		$cookies['acpview'] = array(
 			'admin' => true
 		);
 	}

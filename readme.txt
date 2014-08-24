@@ -1,20 +1,19 @@
 Name: Cookie Law
 Description: Give information and gain consent for cookies to be set by the forum.
-Website: http://mattrogowski.co.uk/plugins/
-Author: MattRogowski
-Authorsite: http://mattrogowski.co.uk/plugins/
-Version: 0.1
-Compatibility: 1.6.x
+Website: https://github.com/MattRogowski/Cookie-Law
+Author: Matt Rogowski
+Authorsite: http://mattrogowski.co.uk
+Version: 1.0
+Compatibility: 1.8.x
 Files: 2
-Templates added: 3
+Templates added: 6
 Template changes: 2
-Database tables added: 0
-Database columns added: 0
+Settings added: 1
 
 Information:
 This plugin tries to comply with a new EU law which requires consent from users before cookies can be set to your browser.
 
-A message will appear along the top of the forum, giving users the ability to accept or reject cookies, and also view more information on them, including what is set and what they do.
+You can either notify users that cookies are used or give users the ability to accept or reject cookies, as well as view more information on them, including what is set and what they do.
 
 To Install:
 Upload ./inc/plugins/cookielaw.php to ./inc/plugins/
@@ -23,8 +22,9 @@ Go to ACP > Plugins > Activate
 
 Change Log:
 26/05/12 - v0.1 -> Initial 'beta' release.
+24/08/14 - v0.1 -> v1.0 -> MyBB 1.8 compatible. Fixes bug with permissions after disallowing cookies. Adds setting for the display method. To upgrade, deactivate, reupload ./inc/plugins/cookielaw.php and ./inc/languages/english/cookielaw.lang.php, activate.
 
-Copyright 2012 Matthew Rogowski
+Copyright 2014 Matthew Rogowski
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
