@@ -44,7 +44,7 @@ function cookielaw_info()
 
 function cookielaw_activate()
 {
-	global $db;
+	global $mybb, $db;
 	
 	cookielaw_deactivate();
 	
@@ -89,7 +89,48 @@ opt=Opt In/Out",
 	rebuild_settings();
 	
 	find_replace_templatesets("header", "#".preg_quote('<div id="container">')."#i", '{$cookielaw}<div id="container">');
-	find_replace_templatesets("footer", "#".preg_quote('{$lang->bottomlinks_syndication}</a></li>')."#i", '{$lang->bottomlinks_syndication}</a></li>'."\n\t\t\t\t".'<li><a href="{$mybb->settings[\'bburl\']}/misc.php?action=cookielaw_info">{$lang->cookielaw_footer}</a></li>');
+	if(substr($mybb->version, 0, 3) == '1.6')
+	{
+		find_replace_templatesets("footer", "#".preg_quote('{$lang->bottomlinks_syndication}</a>')."#i", '{$lang->bottomlinks_syndication}</a> | <a href="{$mybb->settings[\'bburl\']}/misc.php?action=cookielaw_info">{$lang->cookielaw_footer}</a>');
+
+		$js_header = "document.observe(\"dom:loaded\", function() {
+	\$('cookies').on('click', '.cookielaw_disallow', function(Event) {
+		if(!confirm('{\$lang->cookielaw_disallow_confirm}'))
+		{
+			Event.stop();
+		}
+	});
+});";
+		$js_info = "document.observe(\"dom:loaded\", function() {
+	\$('container').on('click', '.cookielaw_disallow', function(Event) {
+		if(!confirm('{\$lang->cookielaw_disallow_confirm}'))
+		{
+			Event.stop();
+		}
+	});
+});";
+	}
+	elseif(substr($mybb->version, 0, 3) == '1.8')
+	{
+		find_replace_templatesets("footer", "#".preg_quote('{$lang->bottomlinks_syndication}</a></li>')."#i", '{$lang->bottomlinks_syndication}</a></li>'."\n\t\t\t\t".'<li><a href="{$mybb->settings[\'bburl\']}/misc.php?action=cookielaw_info">{$lang->cookielaw_footer}</a></li>');
+
+		$js_header = "jQuery(document).ready(function() {
+	jQuery('#cookies .cookielaw_disallow').click(function() {
+		if(!confirm('{\$lang->cookielaw_disallow_confirm}'))
+		{
+			return false;
+		}
+	});
+});";
+		$js_info = "jQuery(document).ready(function() {
+	jQuery('#container .cookielaw_disallow').click(function() {
+		if(!confirm('{\$lang->cookielaw_disallow_confirm}'))
+		{
+			return false;
+		}
+	});
+});";
+	}
 	
 	$templates = array();
 	$templates[] = array(
@@ -99,14 +140,7 @@ opt=Opt In/Out",
 <title>{\$lang->cookielaw_info_title}</title>
 {\$headerinclude}
 <script type=\"text/javascript\">
-jQuery(document).ready(function() {
-	jQuery('.cookielaw_disallow').click(function() {
-		if(!confirm('{\$lang->cookielaw_disallow_confirm}'))
-		{
-			return false;
-		}
-	});
-});
+".$js_info."
 </script>
 </head>
 <body>
@@ -138,14 +172,7 @@ jQuery(document).ready(function() {
 	$templates[] = array(
 		"title" => "cookielaw_header",
 		"template" => "<script type=\"text/javascript\">
-jQuery(document).ready(function() {
-	jQuery('.cookielaw_disallow').unbind('click').click(function() {
-		if(!confirm('{\$lang->cookielaw_disallow_confirm}'))
-		{
-			return false;
-		}
-	});
-});
+".$js_header."
 </script>
 <div id=\"cookies\" style=\"width: 100%; text-align: left; margin-bottom: 10px;\">
 	<form action=\"{\$mybb->settings['bburl']}/misc.php?action=cookielaw_change\" method=\"post\">
@@ -188,7 +215,7 @@ jQuery(document).ready(function() {
 			"title" => $db->escape_string($template['title']),
 			"template" => $db->escape_string($template['template']),
 			"sid" => "-1",
-			"version" => "1600",
+			"version" => "1800",
 			"status" => "",
 			"dateline" => TIME_NOW
 		);
@@ -199,7 +226,7 @@ jQuery(document).ready(function() {
 
 function cookielaw_deactivate()
 {
-	global $db;
+	global $mybb, $db;
 	
 	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
 	
@@ -214,7 +241,14 @@ function cookielaw_deactivate()
 	rebuild_settings();
 	
 	find_replace_templatesets("header", "#".preg_quote('{$cookielaw}')."#i", '', 0);
-	find_replace_templatesets("footer", "#".preg_quote("\n\t\t\t\t".'<li><a href="{$mybb->settings[\'bburl\']}/misc.php?action=cookielaw_info">{$lang->cookielaw_footer}</a></li>')."#i", '', 0);
+	if(substr($mybb->version, 0, 3) == '1.6')
+	{
+		find_replace_templatesets("footer", "#".preg_quote(' | <a href="{$mybb->settings[\'bburl\']}/misc.php?action=cookielaw_info">{$lang->cookielaw_footer}</a>')."#i", '', 0);
+	}
+	elseif(substr($mybb->version, 0, 3) == '1.8')
+	{
+		find_replace_templatesets("footer", "#".preg_quote("\n\t\t\t\t".'<li><a href="{$mybb->settings[\'bburl\']}/misc.php?action=cookielaw_info">{$lang->cookielaw_footer}</a></li>')."#i", '', 0);
+	}
 	
 	$db->delete_query("templates", "title IN ('cookielaw_info','cookielaw_header','cookielaw_buttons_notify','cookielaw_buttons_opt','cookielaw_button_more_info','cookielaw_header_no_cookies')");
 }
@@ -227,6 +261,12 @@ function cookielaw_global_intermediate()
 
 	if(!isset($mybb->cookies['mybb']['allow_cookies']))
 	{
+		if(substr($mybb->version, 0, 3) == '1.6')
+		{
+			// 1.6 compatibility - $theme not available in global_start, spoof default table settings
+			$theme = array('borderwidth' => 1, 'tablespace' => 4);
+		}
+
 		eval("\$more_info = \"".$templates->get("cookielaw_button_more_info")."\";");
 		eval("\$buttons = \"".$templates->get("cookielaw_buttons_".$mybb->settings['cookielaw_method'])."\";");
 		eval("\$cookielaw = \"".$templates->get("cookielaw_header")."\";");

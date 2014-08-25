@@ -4,7 +4,7 @@ Website: https://github.com/MattRogowski/Cookie-Law
 Author: Matt Rogowski
 Authorsite: http://mattrogowski.co.uk
 Version: 1.0
-Compatibility: 1.8.x
+Compatibility: 1.6.x, 1.8.x
 Files: 2
 Templates added: 6
 Template changes: 2
