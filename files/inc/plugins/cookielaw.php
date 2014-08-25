@@ -347,22 +347,30 @@ function cookielaw_misc()
 			}
 			else
 			{
+				if(substr($mybb->version, 0, 3) == '1.6')
+				{
+					$ext = 'gif';
+				}
+				elseif(substr($mybb->version, 0, 3) == '1.8')
+				{
+					$ext = 'png';
+				}
 				$cookie_member = $cookie_guest = '';
 				if($info['member'])
 				{
-					$cookie_member = '<img src="'.$mybb->settings['bburl'].'/images/valid.gif" alt="" title="" />';
+					$cookie_member = '<img src="'.$mybb->settings['bburl'].'/images/valid.'.$ext.'" alt="" title="" />';
 				}
 				else
 				{
-					$cookie_member = '<img src="'.$mybb->settings['bburl'].'/images/invalid.gif" alt="" title="" />';
+					$cookie_member = '<img src="'.$mybb->settings['bburl'].'/images/invalid.'.$ext.'" alt="" title="" />';
 				}
 				if($info['guest'])
 				{
-					$cookie_guest = '<img src="'.$mybb->settings['bburl'].'/images/valid.gif" alt="" title="" />';
+					$cookie_guest = '<img src="'.$mybb->settings['bburl'].'/images/valid.'.$ext.'" alt="" title="" />';
 				}
 				else
 				{
-					$cookie_guest = '<img src="'.$mybb->settings['bburl'].'/images/invalid.gif" alt="" title="" />';
+					$cookie_guest = '<img src="'.$mybb->settings['bburl'].'/images/invalid.'.$ext.'" alt="" title="" />';
 				}
 				$trow = alt_trow();
 				$cookie_description = 'cookielaw_cookie_'.$cookie_name.'_desc';

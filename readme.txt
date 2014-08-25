@@ -22,7 +22,7 @@ Go to ACP > Plugins > Activate
 
 Change Log:
 26/05/12 - v0.1 -> Initial 'beta' release.
-24/08/14 - v0.1 -> v1.0 -> MyBB 1.8 compatible. Fixes bug with permissions after disallowing cookies. Adds setting for the display method. To upgrade, deactivate, reupload ./inc/plugins/cookielaw.php and ./inc/languages/english/cookielaw.lang.php, activate.
+25/08/14 - v0.1 -> v1.0 -> MyBB 1.8 compatible. Fixes bug with permissions after disallowing cookies. Adds setting for the display method. To upgrade, deactivate, reupload ./inc/plugins/cookielaw.php and ./inc/languages/english/cookielaw.lang.php, activate.
 
 Copyright 2014 Matthew Rogowski
 
