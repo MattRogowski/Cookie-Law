@@ -74,12 +74,12 @@ opt=Opt In/Out",
 	foreach($settings as $setting)
 	{
 		$insert = array(
-			"name" => $setting['name'],
-			"title" => $setting['title'],
-			"description" => $setting['description'],
-			"optionscode" => $setting['optionscode'],
-			"value" => $setting['value'],
-			"disporder" => $i,
+			"name" => $db->escape_string($setting['name']),
+			"title" => $db->escape_string($setting['title']),
+			"description" => $db->escape_string($setting['description']),
+			"optionscode" => $db->escape_string($setting['optionscode']),
+			"value" => $db->escape_string($setting['value']),
+			"disporder" => intval($i),
 			"gid" => intval($gid),
 		);
 		$db->insert_query("settings", $insert);
