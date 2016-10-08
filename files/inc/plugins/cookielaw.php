@@ -1,8 +1,8 @@
 <?php
 /**
- * Cookie Law 1.0
+ * Cookie Law 1.0.0
 
- * Copyright 2014 Matthew Rogowski
+ * Copyright 2016 Matthew Rogowski
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,10 +35,10 @@ function cookielaw_info()
 		"description" => "Give information and gain consent for cookies to be set by the forum.",
 		"website" => "https://github.com/MattRogowski/Cookie-Law",
 		"author" => "Matt Rogowski",
-		"authorsite" => "http://mattrogowski.co.uk",
-		"version" => "1.0",
+		"authorsite" => "https://matt.rogow.ski",
+		"version" => "1.0.0",
 		"compatibility" => "16*,18*",
-		"guid" => "8feb3d39042f9ff5b76561fbb42019b2"
+		"codename" => "cookielaw"
 	);
 }
 
