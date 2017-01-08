@@ -1,3 +1,7 @@
+This plugin is unlikely to receive any further updates.
+
+
+
 Name: Cookie Law
 Description: Give information and gain consent for cookies to be set by the forum.
 Website: https://github.com/MattRogowski/Cookie-Law
